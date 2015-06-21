@@ -96,13 +96,18 @@ clean_spaces <- function(x){
 # Summarizing data using MEAN for groups combining [ID_activity , ID_subject]     dim = 180 x 88 
 Ns <- length(X[1,])-2
 for(j in 1:Ns ){
-        X_tmp <- ddply(X, c("IDsubject", "IDactivity"), summarize, mean(X[,j],na.rm=TRUE))
+        F_tmp <- data.frame( cbind(X$IDsubject, X$IDactivity, X[,j]) )
+        F_tmp[,1] <- factor(F_tmp[,1]); F_tmp[,2] <- factor(F_tmp[,2])
+        names(F_tmp) <- c("IDsubject", "IDactivity","V")
+        X_tmp <- ddply(F_tmp, c("IDsubject", "IDactivity"), summarize, mean(V) )
+        #X_tmp <- ddply(X, c("IDsubject", "IDactivity"), summarize, mean(X[,j],na.rm=TRUE))
         if(j==1){
                 X_summary <- X_tmp
         }
         else{
                 X_summary <- cbind(X_summary, X_tmp[,3])
         }
+        rm(F_tmp, X_tmp)
 }
 names(X_summary) <- c("ID_subject", "ID_activity",newnames[1:Ns])
 
@@ -125,11 +130,5 @@ save(X_summary, file="X_summary.txt") # for my use
 write.table(X_summary, file = "data_tidy_summarized.txt", row.name=FALSE) 
 
 
-#mynames <- c("bob", "mary", "tom")
-#description <- my names
-#description <- gsub("o", " the letter o ", description)
-#description <- gsub("m", " the letter m ", description)
-#codestart <- paste(mynames, description)
-#write.table(codestart, "startofcodebook.md")
 
 
